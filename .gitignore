@@ -1,0 +1,5 @@
+# Ignorar la carpeta node_modules en la carpeta server
+/server/node_modules/
+
+# Ignorar la carpeta node_modules en la carpeta dataBrokeringIVClient
+/dataBrokeringIVClient/node_modules/
