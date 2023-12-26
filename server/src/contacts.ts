@@ -1,17 +1,15 @@
+/*
 import * as path from "path";
-const Datastore = require("nedb");
+const { contactModel } = require('../models.js');
 
 export interface IContact {
     _id?: number, name:string, email:string
 }
 
 export class Worker{
-    private db: Nedb;
+    private db: any;
     constructor(){
-        this.db = new Datastore({
-            filename: path.join(__dirname, "contacts.db"),
-            autoload: true
-        });
+        this.db = contactModel;
     }
 
     public listContacts(): Promise<IContact[]>{
@@ -30,7 +28,7 @@ export class Worker{
 
     public addContact(inContact: IContact): Promise<IContact>{
         return new Promise((inResolve, inReject) => {
-            this.db.insert(inContact,
+            inContact.save(inContact,
                 (inError: Error | null, inNewDoc: IContact) =>{
                     if(inError){
                         inReject(inError);
@@ -56,3 +54,4 @@ export class Worker{
         });
     }
 }
+*/

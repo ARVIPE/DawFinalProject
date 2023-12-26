@@ -1,9 +1,13 @@
 import path from "path";
 import express, {Express, NextFunction, Request, Response} from "express";
-import { serverInfo } from "./serverInfo";
-import * as SMTP from "./smtp";
-import * as Contacts from "./contacts";
-import { IContact } from "./contacts";
+//import { serverInfo } from "./serverInfo";
+//import * as SMTP from "./smtp";
+//import * as Contacts from "./contacts";
+//import { IContact } from "./contacts";
+const mongoose = require('mongoose');
+const { contactModel } = require('../models.js');
+const port = 80;
+const uri = 'mongodb+srv://user:daw@cluster0.w1dabn6.mongodb.net/?retryWrites=true&w=majority';
 
 const app: Express = express();
 app.use(express.json());
@@ -19,7 +23,7 @@ app.use(function(inRequest: Request, inResponse: Response, inNext: NextFunction)
     inNext();
 });
 
-
+/*
 app.post("/messages", async (inRequest: Request, inResponse: Response) => {
     try {
         console.log("Received a message request:", inRequest.body);
@@ -31,8 +35,9 @@ app.post("/messages", async (inRequest: Request, inResponse: Response) => {
         inResponse.send("error");
     }
 });
+*/
 
-
+/*
 app.get("/contacts",
     async (inRequest: Request, inResponse: Response) => {
         try{
@@ -44,19 +49,44 @@ app.get("/contacts",
         }
     }
 );
+*/
 
-app.post("/contacts",
-    async(inRequest: Request, inResponse: Response) =>{
-        try{
-            const contactsWorker: Contacts.Worker = new Contacts.Worker();
-            const contact: IContact = await contactsWorker.addContact(inRequest.body);
-            inResponse.json(contact);
-        }catch(inError){
-            inResponse.send("error");
+app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
+    try {
+      const contacts = await contactModel.find({});
+      inResponse.json(contacts);
+    } catch (inError) {
+      inResponse.send("error");
+    }
+  });
+
+app.post('/contacts', async(req: Request, res: Response) =>{
+        try {
+            const name = req.body?.name;
+            const email = req.body?.email;
+
+            console.log(req.body);
+  
+            if (!name || !email) {
+                return res.status(400).json({ message: 'Bad request, name or email not found' });
+            }
+
+            const contact = new contactModel({
+                name,
+                email
+            });
+  
+            const save = await contact.save();
+            return res.status(201).json({ contact: save });
+
+        } catch (error) {
+            console.log('Error', error);
+            return res.status(500).json({ message: 'Internal server error' });
         }
     }
 );
 
+  /*
 app.delete("/contacts/:id",
     async(inRequest: Request, inResponse: Response) =>{
         try{
@@ -69,9 +99,19 @@ app.delete("/contacts/:id",
         }
     }
 );
+*/
 
 // Start app listening.
-app.listen(80, () => {
-    console.log("MailBag server open for requests");
-  });
-  
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
+    .then(() => {
+      console.log('Connection success');
+      app.listen(port, () => {
+        console.log(`Server listen on http://localhost:${port}`);
+      });
+    })
+    .catch((error: any) => {
+      console.error('Connection fail', error);
+    });

@@ -1,27 +1,4 @@
 "use strict";
-var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    var desc = Object.getOwnPropertyDescriptor(m, k);
-    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
-      desc = { enumerable: true, get: function() { return m[k]; } };
-    }
-    Object.defineProperty(o, k2, desc);
-}) : (function(o, m, k, k2) {
-    if (k2 === undefined) k2 = k;
-    o[k2] = m[k];
-}));
-var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
-    Object.defineProperty(o, "default", { enumerable: true, value: v });
-}) : function(o, v) {
-    o["default"] = v;
-});
-var __importStar = (this && this.__importStar) || function (mod) {
-    if (mod && mod.__esModule) return mod;
-    var result = {};
-    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
-    __setModuleDefault(result, mod);
-    return result;
-};
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -37,9 +14,14 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const express_1 = __importDefault(require("express"));
-const serverInfo_1 = require("./serverInfo");
-const SMTP = __importStar(require("./smtp"));
-const Contacts = __importStar(require("./contacts"));
+//import { serverInfo } from "./serverInfo";
+//import * as SMTP from "./smtp";
+//import * as Contacts from "./contacts";
+//import { IContact } from "./contacts";
+const mongoose = require('mongoose');
+const { contactModel } = require('../models.js');
+const port = 80;
+const uri = 'mongodb+srv://user:daw@cluster0.w1dabn6.mongodb.net/?retryWrites=true&w=majority';
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
 app.use("/", express_1.default.static(path_1.default.join(__dirname, "/../../dataBrokeringIVClient/dist")));
@@ -49,50 +31,87 @@ app.use(function (inRequest, inResponse, inNext) {
     inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept");
     inNext();
 });
-app.post("/messages", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
+/*
+app.post("/messages", async (inRequest: Request, inResponse: Response) => {
     try {
         console.log("Received a message request:", inRequest.body);
-        const smtpWorker = new SMTP.Worker(serverInfo_1.serverInfo);
-        yield smtpWorker.sendMessage(inRequest.body);
+        const smtpWorker: SMTP.Worker = new SMTP.Worker(serverInfo);
+        await smtpWorker.sendMessage(inRequest.body);
         inResponse.send("ok");
-    }
-    catch (inError) {
+    } catch (inError) {
         console.error("Error processing message request:", inError);
         inResponse.send("error");
     }
-}));
+});
+*/
+/*
+app.get("/contacts",
+    async (inRequest: Request, inResponse: Response) => {
+        try{
+            const contactsWorker: Contacts.Worker = new Contacts.Worker();
+            const contacts: IContact[] = await contactsWorker.listContacts();
+            inResponse.json(contacts);
+        }catch(inError){
+            inResponse.send("error");
+        }
+    }
+);
+*/
 app.get("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const contactsWorker = new Contacts.Worker();
-        const contacts = yield contactsWorker.listContacts();
+        const contacts = yield contactModel.find({});
         inResponse.json(contacts);
     }
     catch (inError) {
         inResponse.send("error");
     }
 }));
-app.post("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
     try {
-        const contactsWorker = new Contacts.Worker();
-        const contact = yield contactsWorker.addContact(inRequest.body);
-        inResponse.json(contact);
+        const name = (_a = req.body) === null || _a === void 0 ? void 0 : _a.name;
+        const email = (_b = req.body) === null || _b === void 0 ? void 0 : _b.email;
+        console.log(req.body);
+        if (!name || !email) {
+            return res.status(400).json({ message: 'Bad request, name or email not found' });
+        }
+        const contact = new contactModel({
+            name,
+            email
+        });
+        const save = yield contact.save();
+        return res.status(201).json({ contact: save });
     }
-    catch (inError) {
-        inResponse.send("error");
+    catch (error) {
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
 }));
-app.delete("/contacts/:id", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const contactsWorker = new Contacts.Worker();
-        yield contactsWorker.deleteContact(inRequest.params.id);
-        console.log(inRequest.params.id);
-        inResponse.send("ok");
-    }
-    catch (inError) {
-        inResponse.send("error");
-    }
-}));
+/*
+app.delete("/contacts/:id",
+  async(inRequest: Request, inResponse: Response) =>{
+      try{
+          const contactsWorker: Contacts.Worker = new Contacts.Worker();
+          await contactsWorker.deleteContact(inRequest.params.id);
+          console.log(inRequest.params.id);
+          inResponse.send("ok");
+      }catch(inError){
+          inResponse.send("error");
+      }
+  }
+);
+*/
 // Start app listening.
-app.listen(80, () => {
-    console.log("MailBag server open for requests");
+mongoose.connect(uri, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+})
+    .then(() => {
+    console.log('Connection success');
+    app.listen(port, () => {
+        console.log(`Server listen on http://localhost:${port}`);
+    });
+})
+    .catch((error) => {
+    console.error('Connection fail', error);
 });

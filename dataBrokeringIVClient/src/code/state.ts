@@ -316,6 +316,8 @@ export function createState(inParentComponent) {
       // Add to list.
       cl.push(contact);
 
+      console.log(contact.name, contact.email)
+
       // Update state.
       this.setState({ contacts : cl, contactID : null, contactName : "", contactEmail : "" });
 

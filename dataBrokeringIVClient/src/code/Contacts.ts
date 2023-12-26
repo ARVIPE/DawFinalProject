@@ -6,7 +6,7 @@ import { config } from "./config";
 
 // Define interface to describe a contact.  Note that we'll only have an _id field when retrieving or adding, so
 // it has to be optional.
-export interface IContact { _id?: number, name: string, email: string }
+export interface IContact { _id?: string, name: string, email: string }
 
 
 // The worker that will perform contact operations.
@@ -39,7 +39,7 @@ export class Worker {
     console.log("Contacts.Worker.addContact()", inContact);
 
     const response: AxiosResponse = await axios.post(`${config.serverAddress}/contacts`, inContact);
-    return response.data;
+    return response.data.contact;
 
   } /* End addContact(). */
 
