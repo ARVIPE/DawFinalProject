@@ -87,6 +87,18 @@ app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+app.delete("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        const deletedContact = yield contactModel.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
+        console.log(deletedContact);
+        return res.status(201).json({ contact: deletedContact });
+    }
+    catch (error) {
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}));
 /*
 app.delete("/contacts/:id",
   async(inRequest: Request, inResponse: Response) =>{

@@ -61,30 +61,41 @@ app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
   });
 
 app.post('/contacts', async(req: Request, res: Response) =>{
-        try {
-            const name = req.body?.name;
-            const email = req.body?.email;
+    try {
+        const name = req.body?.name;
+        const email = req.body?.email;
 
-            console.log(req.body);
+        console.log(req.body);
   
-            if (!name || !email) {
-                return res.status(400).json({ message: 'Bad request, name or email not found' });
-            }
-
-            const contact = new contactModel({
-                name,
-                email
-            });
-  
-            const save = await contact.save();
-            return res.status(201).json({ contact: save });
-
-        } catch (error) {
-            console.log('Error', error);
-            return res.status(500).json({ message: 'Internal server error' });
+        if (!name || !email) {
+            return res.status(400).json({ message: 'Bad request, name or email not found' });
         }
+
+        const contact = new contactModel({
+            name,
+            email
+        });
+  
+        const save = await contact.save();
+        return res.status(201).json({ contact: save });
+
+    } catch (error) {
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-);
+});
+
+app.delete("/contacts/:id", async(req: Request, res: Response) =>{
+    try{
+        const id = req.params.id;
+        const deletedContact = await contactModel.deleteOne({_id: new mongoose.Types.ObjectId(id)});
+        console.log(deletedContact);
+        return res.status(201).json({ contact: deletedContact });
+    } catch(error){
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+});
 
   /*
 app.delete("/contacts/:id",
