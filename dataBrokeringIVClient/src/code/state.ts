@@ -4,7 +4,6 @@ import { config } from "./config";
 import * as IMAP from "./IMAP";
 import * as SMTP from "./SMTP";
 
-
 /**
  * This function must be called once and only once from BaseLayout.
  */
@@ -18,7 +17,7 @@ export function createState(inParentComponent) {
 
     // List of contacts.
     contacts : [ ],
-
+    
     // List of mailboxes.
     mailboxes : [ ],
 
@@ -44,11 +43,9 @@ export function createState(inParentComponent) {
     contactName : null,
     contactEmail : null,
 
-
     // ------------------------------------------------------------------------------------------------
     // ------------------------------------ View Switch functions -------------------------------------
     // ------------------------------------------------------------------------------------------------
-
 
     /**
      * Shows or hides the please wait dialog during server calls.
@@ -81,11 +78,22 @@ export function createState(inParentComponent) {
     /**
      * Show ContactView in add mode.
      */
-    showAddContact : function(): void {
+    showAddContact : async function(): Promise<void> {
 
       console.log("state.showAddContact()");
 
-      this.setState({ currentView : "contactAdd", contactID : null, contactName : "", contactEmail : "" });
+      const cl = this.state.contacts.slice(0);
+
+      this.state.showHidePleaseWait(true);
+      const contactsWorker: Contacts.Worker = new Contacts.Worker();
+      const data = await contactsWorker.listContacts();
+    
+      for(var i = 0; i < data.length; i++){
+        cl.push(data[i]);
+      }
+      this.state.showHidePleaseWait(false);
+
+      this.setState({ contacts : cl, currentView : "contactAdd", contactID : null, contactName : "", contactEmail : "" });
 
     }.bind(inParentComponent), /* End showAddContact(). */
 
@@ -294,6 +302,38 @@ export function createState(inParentComponent) {
       this.setState({ [inEvent.target.id] : inEvent.target.value });
 
     }.bind(inParentComponent), /* End fieldChangeHandler(). */
+
+    /**
+     * Update contact.
+     */
+    updateContact : async function(): Promise<void> {
+
+      console.log("state.updateContact()", this.state.contactID, this.state.contactName, this.state.contactEmail);
+
+      // Copy list.
+      const cl = this.state.contacts.slice(0);
+
+      // Save to server.
+      this.state.showHidePleaseWait(true);
+      const contactsWorker: Contacts.Worker = new Contacts.Worker();
+      const contact: Contacts.IContact =
+      await contactsWorker.updateContact({_id: this.state.contactID, name : this.state.contactName, email : this.state.contactEmail});
+      this.state.showHidePleaseWait(false);
+
+      // Update.
+      for(let i = 0; i < cl.length; i++){
+        if(cl[i].id == this.state.contactID){
+          cl[i].name = this.state.contactName;
+          cl[i].email = this.state.contactEmail;
+        }
+      }
+
+      console.log(contact.name, contact.email)
+
+      // Update state.
+      this.setState({ contacts : cl, contactID : null, contactName : "", contactEmail : "" });
+
+    }.bind(inParentComponent), /* End saveContact(). */
 
 
     /**

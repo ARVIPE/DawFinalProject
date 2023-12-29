@@ -69,8 +69,7 @@ class BaseLayout extends Component {
 
       </div>
     );
-
-  } /* End render(). */
+} /* End render(). */
 
 
 } /* End class. */

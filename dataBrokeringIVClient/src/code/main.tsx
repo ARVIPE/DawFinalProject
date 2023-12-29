@@ -8,12 +8,14 @@ import ReactDOM from "react-dom";
 
 // App imports.
 import BaseLayout from "./components/BaseLayout";
+import * as state from "./state";
 import * as IMAP from "./IMAP";
 import * as Contacts from "./Contacts";
 
 
+
 // Render the UI.
-const baseComponent = ReactDOM.render(<BaseLayout />, document.body);
+const baseComponent = ReactDOM.render(<BaseLayout />, document.body); 
 
 
 // Now go fetch the user's mailboxes, and then their contacts.

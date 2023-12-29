@@ -23,34 +23,7 @@ app.use(function(inRequest: Request, inResponse: Response, inNext: NextFunction)
     inNext();
 });
 
-/*
-app.post("/messages", async (inRequest: Request, inResponse: Response) => {
-    try {
-        console.log("Received a message request:", inRequest.body);
-        const smtpWorker: SMTP.Worker = new SMTP.Worker(serverInfo);
-        await smtpWorker.sendMessage(inRequest.body);
-        inResponse.send("ok");
-    } catch (inError) { 
-        console.error("Error processing message request:", inError);
-        inResponse.send("error");
-    }
-});
-*/
-
-/*
-app.get("/contacts",
-    async (inRequest: Request, inResponse: Response) => {
-        try{
-            const contactsWorker: Contacts.Worker = new Contacts.Worker();
-            const contacts: IContact[] = await contactsWorker.listContacts();
-            inResponse.json(contacts);
-        }catch(inError){
-            inResponse.send("error");
-        }
-    }
-);
-*/
-
+//get
 app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
     try {
       const contacts = await contactModel.find({});
@@ -60,6 +33,7 @@ app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
     }
   });
 
+//insert
 app.post('/contacts', async(req: Request, res: Response) =>{
     try {
         const name = req.body?.name;
@@ -85,6 +59,7 @@ app.post('/contacts', async(req: Request, res: Response) =>{
     }
 });
 
+//delete
 app.delete("/contacts/:id", async(req: Request, res: Response) =>{
     try{
         const id = req.params.id;
@@ -97,20 +72,25 @@ app.delete("/contacts/:id", async(req: Request, res: Response) =>{
     }
 });
 
-  /*
-app.delete("/contacts/:id",
-    async(inRequest: Request, inResponse: Response) =>{
-        try{
-            const contactsWorker: Contacts.Worker = new Contacts.Worker();
-            await contactsWorker.deleteContact(inRequest.params.id);
-            console.log(inRequest.params.id);
-            inResponse.send("ok");
-        }catch(inError){
-            inResponse.send("error");
+//update
+app.put("/contacts/:id", async(req: Request, res: Response) =>{
+    try{
+        const id = req.params.id;
+        const name = req.body.name;
+        const email = req.body.email;
+
+        if (!name || !email) {
+          return res.status(400).json({ message: 'Bad request, name or email not found' });
         }
+  
+        const updatedContact = await contactModel.findOneAndUpdate({_id: new mongoose.Types.ObjectId(id)}, {name: name, email: email}, {returnOriginal: false})
+        console.log(updatedContact);
+        return res.status(201).json({ contact: updatedContact });
+    } catch(error){
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
     }
-);
-*/
+});
 
 // Start app listening.
 mongoose.connect(uri, {

@@ -45,6 +45,19 @@ export class Worker {
 
 
   /**
+   * Update a contact to the server
+   * 
+   */
+  public async updateContact(inContact: IContact): Promise<IContact>{
+
+    console.log("Contacts.Worker.updateContact()", inContact);
+    console.log("The id: " + inContact._id);
+    const response: AxiosResponse = await axios.put(`${config.serverAddress}/contacts/${inContact._id}`, inContact);
+    return response.data.contact;
+  }
+
+
+  /**
    * Delete a contact from the server.
    *
    * @oaram inID The ID (_id) of the contact to add.

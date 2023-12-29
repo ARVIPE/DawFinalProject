@@ -31,32 +31,7 @@ app.use(function (inRequest, inResponse, inNext) {
     inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept");
     inNext();
 });
-/*
-app.post("/messages", async (inRequest: Request, inResponse: Response) => {
-    try {
-        console.log("Received a message request:", inRequest.body);
-        const smtpWorker: SMTP.Worker = new SMTP.Worker(serverInfo);
-        await smtpWorker.sendMessage(inRequest.body);
-        inResponse.send("ok");
-    } catch (inError) {
-        console.error("Error processing message request:", inError);
-        inResponse.send("error");
-    }
-});
-*/
-/*
-app.get("/contacts",
-    async (inRequest: Request, inResponse: Response) => {
-        try{
-            const contactsWorker: Contacts.Worker = new Contacts.Worker();
-            const contacts: IContact[] = await contactsWorker.listContacts();
-            inResponse.json(contacts);
-        }catch(inError){
-            inResponse.send("error");
-        }
-    }
-);
-*/
+//get
 app.get("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const contacts = yield contactModel.find({});
@@ -66,6 +41,7 @@ app.get("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0
         inResponse.send("error");
     }
 }));
+//insert
 app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
@@ -87,6 +63,7 @@ app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
+//delete
 app.delete("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
@@ -99,20 +76,24 @@ app.delete("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, func
         return res.status(500).json({ message: 'Internal server error' });
     }
 }));
-/*
-app.delete("/contacts/:id",
-  async(inRequest: Request, inResponse: Response) =>{
-      try{
-          const contactsWorker: Contacts.Worker = new Contacts.Worker();
-          await contactsWorker.deleteContact(inRequest.params.id);
-          console.log(inRequest.params.id);
-          inResponse.send("ok");
-      }catch(inError){
-          inResponse.send("error");
-      }
-  }
-);
-*/
+//update
+app.put("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const id = req.params.id;
+        const name = req.body.name;
+        const email = req.body.email;
+        if (!name || !email) {
+            return res.status(400).json({ message: 'Bad request, name or email not found' });
+        }
+        const updatedContact = yield contactModel.findOneAndUpdate({ _id: new mongoose.Types.ObjectId(id) }, { name: name, email: email }, { returnOriginal: false });
+        console.log(updatedContact);
+        return res.status(201).json({ contact: updatedContact });
+    }
+    catch (error) {
+        console.log('Error', error);
+        return res.status(500).json({ message: 'Internal server error' });
+    }
+}));
 // Start app listening.
 mongoose.connect(uri, {
     useNewUrlParser: true,
