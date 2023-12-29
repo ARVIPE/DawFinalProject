@@ -310,8 +310,8 @@ export function createState(inParentComponent) {
 
       console.log("state.updateContact()", this.state.contactID, this.state.contactName, this.state.contactEmail);
 
-      // Copy list.
-      const cl = this.state.contacts.slice(0);
+      //List
+      const cl = [ ];
 
       // Save to server.
       this.state.showHidePleaseWait(true);
@@ -319,14 +319,15 @@ export function createState(inParentComponent) {
       const contact: Contacts.IContact =
       await contactsWorker.updateContact({_id: this.state.contactID, name : this.state.contactName, email : this.state.contactEmail});
       this.state.showHidePleaseWait(false);
-
-      // Update.
-      for(let i = 0; i < cl.length; i++){
-        if(cl[i].id == this.state.contactID){
-          cl[i].name = this.state.contactName;
-          cl[i].email = this.state.contactEmail;
-        }
+      
+      // Update in the client
+      this.state.showHidePleaseWait(true);
+      const data = await contactsWorker.listContacts();
+    
+      for(var i = 0; i < data.length; i++){
+        cl.push(data[i]);
       }
+      this.state.showHidePleaseWait(false);
 
       console.log(contact.name, contact.email)
 
