@@ -27,7 +27,7 @@ app.use(express_1.default.json());
 app.use("/", express_1.default.static(path_1.default.join(__dirname, "/../../dataBrokeringIVClient/dist")));
 app.use(function (inRequest, inResponse, inNext) {
     inResponse.header("Access-Control-Allow-Origin", "*");
-    inResponse.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS");
+    inResponse.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS,PUT");
     inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept");
     inNext();
 });
