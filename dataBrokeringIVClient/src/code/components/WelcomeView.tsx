@@ -1,14 +1,16 @@
 // React imports.
 import React from "react";
+import { Button } from "@mui/material";
+import NewContactIcon from "@mui/icons-material/ContactMail";
 
 
 /**
  * WelcomeView.
  */
-const WelcomeView = () => (
+const WelcomeView = ({ state }) => (
 
-  <div style={{ position:"relative", top:"40%", textAlign:"center", color:"#ff0000" }}>
-    <h1>Welcome to MailBag!</h1>
+  <div style={{ position:"relative", top:"10%", textAlign:"center", color:"white" }}>
+    <h1>Welcome to your Users CRUD</h1>
   </div>
 
 ); /* WelcomeView. */

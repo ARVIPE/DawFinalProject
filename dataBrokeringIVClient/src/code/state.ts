@@ -82,7 +82,7 @@ export function createState(inParentComponent) {
 
       console.log("state.showAddContact()");
 
-      const cl = this.state.contacts.slice(0);
+      const cl = [ ];
 
       this.state.showHidePleaseWait(true);
       const contactsWorker: Contacts.Worker = new Contacts.Worker();
@@ -310,6 +310,8 @@ export function createState(inParentComponent) {
 
       console.log("state.updateContact()", this.state.contactID, this.state.contactName, this.state.contactEmail);
 
+      if(this.state.contactName == "" || this.state.contactEmail == "") alert("Please fill out all fields");
+      if(this.state.contactName == "" || this.state.contactEmail == "") return;
       //List
       const cl = [ ];
 
@@ -344,6 +346,8 @@ export function createState(inParentComponent) {
 
       console.log("state.saveContact()", this.state.contactID, this.state.contactName, this.state.contactEmail);
 
+      if(this.state.contactName == "" || this.state.contactEmail == "") alert("Please fill out all fields");
+      if(this.state.contactName == "" || this.state.contactEmail == "") return;
       // Copy list.
       const cl = this.state.contacts.slice(0);
 

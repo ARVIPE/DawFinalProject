@@ -13,13 +13,9 @@ import NewMessageIcon from "@mui/icons-material/Email";
 const Toolbar = ({ state }) => (
 
   <div>
-    <Button variant="contained" color="primary" size="small" style={{ marginRight:10 }}
-      onClick={ () => state.showComposeMessage("new") } >
-      <NewMessageIcon style={{ marginRight:10 }} />New Message
-    </Button>
-    <Button variant="contained" color="primary" size="small" style={{ marginRight:10 }}
+    <Button variant="contained" color="primary" size="small" style={{ marginRight:10, backgroundColor:"#fc3008" }}  
       onClick={ state.showAddContact } >
-      <NewContactIcon style={{ marginRight:10 }} />New Contact
+      <NewContactIcon style={{ marginRight:10}} />New Contact
     </Button>
   </div>
 

@@ -25,7 +25,7 @@ const ContactList = ({ state }) => (
               <Person />
             </Avatar>
           </ListItemAvatar>
-          <ListItemText primary={ `${value.name}` } />
+          <ListItemText style={{ color: "white" }} primary={ `${value.name}` } />
         </ListItem>
       );
     })}
