@@ -22,7 +22,9 @@ export class Worker {
 
     console.log("Contacts.Worker.listContacts()");
 
-    const response: AxiosResponse = await axios.get(`${config.serverAddress}/contacts`);
+    const token = 'Bearer 1234';
+    
+    const response: AxiosResponse = await axios.get(`${config.serverAddress}/contacts`, {headers: {'Authorization': token, 'Content-Type': 'application/json'}});
     return response.data;
 
   } /* End listContacts(). */
@@ -38,7 +40,8 @@ export class Worker {
 
     console.log("Contacts.Worker.addContact()", inContact);
 
-    const response: AxiosResponse = await axios.post(`${config.serverAddress}/contacts`, inContact);
+    const token = 'Bearer 1234';
+    const response: AxiosResponse = await axios.post(`${config.serverAddress}/contacts`, inContact, {headers: {'Authorization': token, 'Content-Type': 'application/json'}});
     return response.data.contact;
 
   } /* End addContact(). */
@@ -48,11 +51,14 @@ export class Worker {
    * Update a contact to the server
    * 
    */
-  public async updateContact(inContact: IContact): Promise<IContact>{
+  public async updateContact(inContact: IContact): Promise<IContact> {
 
     console.log("Contacts.Worker.updateContact()", inContact);
     console.log("The id: " + inContact._id);
-    const response: AxiosResponse = await axios.put(`${config.serverAddress}/contacts/${inContact._id}`, inContact);
+
+    const token = 'Bearer 1234';
+    const response: AxiosResponse = await axios.put(`${config.serverAddress}/contacts/${inContact._id}`, inContact, {headers: {'Authorization': token, 'Content-Type': 'application/json'}});
+    
     return response.data.contact;
   }
 
@@ -66,7 +72,10 @@ export class Worker {
 
     console.log("Contacts.Worker.deleteContact()", inID);
 
-    await axios.delete(`${config.serverAddress}/contacts/${inID}`);
+    const token = 'Bearer 1234';
+
+    return await axios.delete(`${config.serverAddress}/contacts/${inID}`, {headers: {'Authorization': token, 'Content-Type': 'application/json'}});
+
 
   } /* End deleteContact(). */
 

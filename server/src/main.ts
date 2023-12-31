@@ -5,6 +5,7 @@ import express, {Express, NextFunction, Request, Response} from "express";
 //import * as Contacts from "./contacts";
 //import { IContact } from "./contacts";
 const mongoose = require('mongoose');
+const cors = require('cors');
 const { contactModel } = require('../models.js');
 const port = 80;
 const uri = 'mongodb+srv://user:daw@cluster0.w1dabn6.mongodb.net/?retryWrites=true&w=majority';
@@ -14,17 +15,40 @@ app.use(express.json());
 app.use("/", express.static(path.join(__dirname, "/../../dataBrokeringIVClient/dist"))
 );
 
+app.use(cors());
+
 
 app.use(function(inRequest: Request, inResponse: Response, inNext: NextFunction)
 {
     inResponse.header("Access-Control-Allow-Origin", "*");
     inResponse.header("Access-Control-Allow-Methods", "GET,POST,DELETE,OPTIONS,PUT");
-    inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept");
+    inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept,Referer,User-Agent");
     inNext();
 });
 
+
+const secretKey = 'Bearer 1234';
+// Middleware to verify token
+const verifyToken = (inRequest: Request, inResponse: Response, next: NextFunction) => {
+  const token = inRequest.headers['authorization'];
+
+  if (!token) {
+    return inResponse.status(401).json({ message: 'Unauthorized: No token provided' });
+  }
+
+  if(token !== secretKey){
+    return inResponse.status(401).json({ message: 'Unauthorized: Invalid token' });
+  }
+  next();
+  
+};
+
+app.options('/contacts', cors({
+  allowedHeaders: ['Authorization', 'Content-Type'],
+}));
+
 //get
-app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
+app.get("/contacts", verifyToken, async (inRequest: Request, inResponse: Response) => {
     try {
       const contacts = await contactModel.find({});
       inResponse.json(contacts);
@@ -34,7 +58,7 @@ app.get("/contacts", async (inRequest: Request, inResponse: Response) => {
   });
 
 //insert
-app.post('/contacts', async(req: Request, res: Response) =>{
+app.post('/contacts', verifyToken, async(req: Request, res: Response) =>{
     try {
         const name = req.body?.name;
         const email = req.body?.email;
@@ -60,7 +84,7 @@ app.post('/contacts', async(req: Request, res: Response) =>{
 });
 
 //delete
-app.delete("/contacts/:id", async(req: Request, res: Response) =>{
+app.delete("/contacts/:id", verifyToken, async(req: Request, res: Response) =>{
     try{
         const id = req.params.id;
         const deletedContact = await contactModel.deleteOne({_id: new mongoose.Types.ObjectId(id)});
@@ -73,7 +97,7 @@ app.delete("/contacts/:id", async(req: Request, res: Response) =>{
 });
 
 //update
-app.put("/contacts/:id", async(req: Request, res: Response) =>{
+app.put("/contacts/:id", verifyToken, async(req: Request, res: Response) =>{
     try{
         const id = req.params.id;
         const name = req.body.name;
