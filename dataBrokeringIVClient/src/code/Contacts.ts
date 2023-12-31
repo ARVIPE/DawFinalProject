@@ -11,8 +11,6 @@ export interface IContact { _id?: string, name: string, email: string }
 
 // The worker that will perform contact operations.
 export class Worker {
-
-
   /**
    * Returns a list of all contacts from the server.
    *
@@ -22,8 +20,24 @@ export class Worker {
 
     console.log("Contacts.Worker.listContacts()");
 
-    const response: AxiosResponse = await axios.get(`${config.serverAddress}/contacts`);
-    return response.data;
+    const token = 'Bearer 1234';
+
+    try{
+      const response: AxiosResponse = await axios.get(
+        `${config.serverAddress}/contacts`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      // Handle errors
+      console.error("Error listing contacts:", error);
+      throw error;
+    }
+
 
   } /* End listContacts(). */
 
@@ -35,13 +49,28 @@ export class Worker {
    * @return           The inContact object, but now with a _id field added.
    */
   public async addContact(inContact: IContact): Promise<IContact> {
-
     console.log("Contacts.Worker.addContact()", inContact);
-
-    const response: AxiosResponse = await axios.post(`${config.serverAddress}/contacts`, inContact);
-    return response.data.contact;
-
-  } /* End addContact(). */
+  
+    const token = 'Bearer 1234'; // Replace this with your actual token
+  
+    try {
+      const response: AxiosResponse = await axios.post(
+        `${config.serverAddress}/contacts`,
+        inContact,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+  
+      return response.data.contact;
+    } catch (error) {
+      console.error("Error adding contact:", error.message);
+      throw error;
+    }
+  }
+  /* End addContact(). */
 
 
   /**
@@ -52,8 +81,24 @@ export class Worker {
 
     console.log("Contacts.Worker.updateContact()", inContact);
     console.log("The id: " + inContact._id);
-    const response: AxiosResponse = await axios.put(`${config.serverAddress}/contacts/${inContact._id}`, inContact);
-    return response.data.contact;
+
+    const token = 'Bearer 1234';
+
+    try{
+      const response: AxiosResponse = await axios.put(
+        `${config.serverAddress}/contacts/${inContact._id}`,
+        inContact,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );
+      return response.data.contact;
+    }catch(error){
+      console.error("Error updating contact:", error);
+      throw error;
+    }
   }
 
 
@@ -66,7 +111,21 @@ export class Worker {
 
     console.log("Contacts.Worker.deleteContact()", inID);
 
-    await axios.delete(`${config.serverAddress}/contacts/${inID}`);
+    const token = 'Bearer 1234';
+
+    try{
+      const response: AxiosResponse = await axios.delete(
+        `${config.serverAddress}/contacts/${inID}`,
+        {
+          headers: {
+            Authorization: token,
+          },
+        }
+      );  
+    }catch(error){
+      console.error("Error deleting contact:", error);
+      throw error;
+    }
 
   } /* End deleteContact(). */
 

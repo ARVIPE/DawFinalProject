@@ -14,10 +14,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const path_1 = __importDefault(require("path"));
 const express_1 = __importDefault(require("express"));
-//import { serverInfo } from "./serverInfo";
-//import * as SMTP from "./smtp";
-//import * as Contacts from "./contacts";
-//import { IContact } from "./contacts";
 const mongoose = require('mongoose');
 const { contactModel } = require('../models.js');
 const port = 80;
@@ -31,8 +27,20 @@ app.use(function (inRequest, inResponse, inNext) {
     inResponse.header("Access-Control-Allow-Headers", "Origin,X-Requested-Width,Content-Type,Accept");
     inNext();
 });
+const secretKey = 'Bearer 1234';
+// Middleware to verify token
+const verifyToken = (inRequest, inResponse, next) => {
+    const token = inRequest.headers['authorization'];
+    if (!token) {
+        return inResponse.status(401).json({ message: 'Unauthorized: No token provided' });
+    }
+    if (token !== secretKey) {
+        return inResponse.status(401).json({ message: 'Unauthorized: Invalid token' });
+    }
+    next();
+};
 //get
-app.get("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
+app.get("/contacts", verifyToken, (inRequest, inResponse) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const contacts = yield contactModel.find({});
         inResponse.json(contacts);
@@ -42,7 +50,7 @@ app.get("/contacts", (inRequest, inResponse) => __awaiter(void 0, void 0, void 0
     }
 }));
 //insert
-app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.post('/contacts', verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     var _a, _b;
     try {
         const name = (_a = req.body) === null || _a === void 0 ? void 0 : _a.name;
@@ -64,7 +72,7 @@ app.post('/contacts', (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 }));
 //delete
-app.delete("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.delete("/contacts/:id", verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         const deletedContact = yield contactModel.deleteOne({ _id: new mongoose.Types.ObjectId(id) });
@@ -77,7 +85,7 @@ app.delete("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, func
     }
 }));
 //update
-app.put("/contacts/:id", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+app.put("/contacts/:id", verifyToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const id = req.params.id;
         const name = req.body.name;
